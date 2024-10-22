@@ -105,6 +105,7 @@ for file in files:
         playlist_names.append(playlist_name)
 
 # Start creating playlists and writing playlist files
+overwrite_all_files = False
 playlists_created = []
 for playlist_name in playlist_names:
     print(f"Creating playlist \"{playlist_name}\"")
@@ -129,7 +130,7 @@ for playlist_name in playlist_names:
     if os.path.isdir(playlist_abspath):
         playlist_file_path = f"{playlist_abspath}/{playlist_name}.m3u"
         
-        # Check for existing playlist files and overwrite
+        # Check for existing playlist files and overwrite after prompt
         if not os.path.isfile(playlist_file_path): 
             try:
                 file_writer = open(playlist_file_path, "x")
@@ -138,7 +139,18 @@ for playlist_name in playlist_names:
                 input("Error: Could not write playlist file!")
                 exit()
         else:
-            print(f"\nWARNING: Overwriting existing file \"{playlist_file_path}\"")
+            if not overwrite_all_files:
+                print(f"\nWARNING: Overwriting existing file \"{playlist_file_path}\"!")
+                print("Please confirm overwrite by typing \"yes\" for just this case or \"all\" for all future cases: ")
+                overwrite_prompt = input("Overwrite? ")
+                overwrite_prompt = "" + overwrite_prompt.lower()
+
+            if overwrite_prompt == "all":
+                overwrite_all_files = True
+            
+            if not overwrite_all_files and overwrite_prompt != "yes" and overwrite_prompt != "y":
+                continue
+
             try:
                 os.remove(playlist_file_path)
                 file_writer = open(playlist_file_path, "x")
